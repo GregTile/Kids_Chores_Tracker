@@ -11,10 +11,10 @@
   <meta name="apple-mobile-web-app-title" content="Chore Hero">
   <meta name="theme-color" content="#4f46e5">
 
-  <!-- Favicon: fun star on indigo circle (inline SVG, no file needed) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%234f46e5'/%3E%3Ctext y='.9em' x='50%25' font-size='62' text-anchor='middle' dominant-baseline='hanging' font-family='Apple Color Emoji%2C Segoe UI Emoji%2C Noto Color Emoji%2C sans-serif'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
-  <!-- Apple touch icon for iPad home screen -->
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%234f46e5'/%3E%3Ctext y='.9em' x='50%25' font-size='62' text-anchor='middle' dominant-baseline='hanging' font-family='Apple Color Emoji%2C Segoe UI Emoji%2C Noto Color Emoji%2C sans-serif'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+  <!-- Favicon: PNG star icon — works on old Safari / iPadOS 17 (no SVG favicon support) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAh0lEQVR42u2X0Q3AIAhEma6/Hb8TdA67gEVajvNMNOHX98QoYLbSOo+7RWIKtEQmC09JeBu2y7oBk/gKjopQ4CkJFPyXBBIcERkKoOBvEq4AGt6ToJ5+mAUG3M3CFtgCUq9AQoDxE2oJyNUCCQF6Oa7MQqorosKR11HWGcvMBstMR+sPp9XrAUUQwW4D/gtRAAAAAElFTkSuQmCC">
+  <!-- Apple Touch Icon: 180px PNG for iPad home screen -->
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAADBUlEQVR42u3dwU3DUBRFQVfHlvJTAXVAAyxYEPu98+dKZx0pHn0ZFNnXZWZn7/Pj6/uOfNO2Ei7odhRgwC2PGG7LIoYb4uMiAGK4DWSwDWSwDWSwQRbYIINtMENtIIMNssCGWVDDLKhBBhtmQQ2zoAZZYMP8W9+v61+CGubVgMvAYYY4hxtmkHOwYQY5BxtmkHOwYYYZapjPgrwRNswwQw3zmZihPhRzFfI22EDDnEINM8xQw3w2ZqjdNwMNtdMZ6hBomKHOoIYZ6gxq981Ap1BDDHcGNMhgp1BDDHcGNMhgZ1CDDHYKNcxQZ0CDrBRqmPUEapgF9STQwED9VtAwK4UaZk1ADbOgfgI0EFDfAhpmpVDDrImogRbQMCuFGmZNRg20zgUNs1KogRbQMOtm1E5nnXdKw6zUKQ20MqBhVgo10AIaaJ0E2oXUu1E7ndU/pYEW0EALaAG9FLQLqMf+MARaGdBuN5S67QBaQAMtoCWgBTTQAhpoAQ20gBbQQAtooAU00AIaaPVBQ61HnqIEtIAGWkAL6OWgodYdmIEW0EALaKj1uvkNs0ALaKg1CDPQAhpqTcUMtLqgoVYKM9ACGmoNwTwCNNQwAy2gJ4OGGuaVb8ICGuhHXmAPtIAGWkADDfQNoP0/Wuv//wy0gAZaW0BDrRRmoAU00JoM2s9Jte7nokALaKi18XbDKa3U6Qy0gAYa6OmgoVYKM9DKgYZaKcxAKwfaAx015kGMTmk5naFWHTPQyoGGWinMQCsHGmqYU5ihhjmH2e+lYc6BdkoDncLslIY5BxpqmFOYoYY5hxlqmHOYPYoX5hxo72kBOYUZaphzmKGGOYf5SdBg74C8DvQE1GDPhbwO8yTUYM+CvBbzNNQnw550Da7CJn2hd+Oe8rkwH4D6HdC2fC7MB6D+C7xTPhfmA1ALZqhhvqAWzFALZqgFM9gCGWqYoRbMYAtkqAUz1DAb2CAb2CBDLZjBFshgg2xgg2xggww2uCDDDbHBDbHBDbHBDbG1gLsythK6b9rs8P0A/ZLrWIQmhK0AAAAASUVORK5CYII=">
 
   <!-- Tailwind CSS & Canvas Confetti CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -108,7 +108,7 @@
     </section>
 
     <!-- VIEW 2: SELECT ACTIVITY -->
-    <section id="activityView" class="hidden flex-1 flex flex-col">
+    <section id="activityView" class="hidden flex flex-col">
       <!-- Active Child Banner -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex items-center justify-between">
         <div class="flex items-center space-x-3.5">
@@ -136,7 +136,7 @@
       </div>
 
       <!-- Activities Grid -->
-      <div id="tasksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 flex-1">
+      <div id="tasksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         <!-- Rendered dynamically -->
       </div>
 
