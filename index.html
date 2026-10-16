@@ -45,6 +45,34 @@
     .animate-pop {
       animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+    /*
+     * Layout fix for old Safari / Chrome (iPadOS 17, Chrome <100):
+     * Nested "flex-col + flex-1" containers cause incorrect height calculations
+     * in older WebKit/Blink — child elements escape their container and float
+     * over siblings.  The safest fix for old browsers is to use normal block
+     * flow for the page body and all view sections so the page scrolls naturally.
+     */
+    body {
+      display: block !important;
+    }
+    #mainContainer {
+      display: block !important;
+    }
+    #childSelectionView {
+      display: none;
+      padding-top: 10vh;
+      padding-bottom: 5vh;
+      text-align: center;
+    }
+    #childSelectionView.visible {
+      display: block !important;
+    }
+    #activityView {
+      display: none;
+    }
+    #activityView.visible {
+      display: block !important;
+    }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col font-sans antialiased">
@@ -80,7 +108,7 @@
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 flex flex-col">
+  <main id="mainContainer" class="max-w-4xl w-full mx-auto p-4 md:p-6">
 
     <!-- SETUP BANNER (shown only if Google Apps Script URL is not configured) -->
     <div id="setupBanner" class="hidden mb-6 bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl flex items-center justify-between shadow-sm">
@@ -97,7 +125,7 @@
     </div>
 
     <!-- VIEW 1: SELECT CHILD -->
-    <section id="childSelectionView" class="flex-1 flex flex-col justify-center">
+    <section id="childSelectionView" class="visible">
       <div class="text-center mb-8">
         <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">Your name</h2>
       </div>
@@ -108,7 +136,7 @@
     </section>
 
     <!-- VIEW 2: SELECT ACTIVITY -->
-    <section id="activityView" class="hidden flex flex-col">
+    <section id="activityView">
       <!-- Active Child Banner -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex items-center justify-between">
         <div class="flex items-center space-x-3.5">
@@ -676,9 +704,10 @@
     // --- VIEW SWITCHING ---
     function showChildSelection() {
       appState.activeChild = null;
-      document.getElementById("childSelectionView").classList.remove("hidden");
-      document.getElementById("activityView").classList.add("hidden");
+      document.getElementById("childSelectionView").classList.add("visible");
+      document.getElementById("activityView").classList.remove("visible");
       document.getElementById("headerSubtitle").textContent = "Activity & Chore Log";
+      window.scrollTo(0, 0);
     }
 
     function selectChild(childId) {
@@ -691,10 +720,11 @@
       document.getElementById("recentChildName").textContent = child.name;
       document.getElementById("headerSubtitle").textContent = `Logging for ${child.name}`;
 
-      document.getElementById("childSelectionView").classList.add("hidden");
-      document.getElementById("activityView").classList.remove("hidden");
+      document.getElementById("childSelectionView").classList.remove("visible");
+      document.getElementById("activityView").classList.add("visible");
       renderTasksGrid();
       renderRecentLogs();
+      window.scrollTo(0, 0);
 
       // Automatically fetch latest logs from Google Sheet across all iPads
       if (appState.sheetUrl) {
