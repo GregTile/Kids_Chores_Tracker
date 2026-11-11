@@ -27,6 +27,10 @@
       user-select: none;
       -webkit-touch-callout: none;
     }
+    input, textarea {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+    }
     html, body {
       overscroll-behavior-y: none;
       touch-action: manipulation;
@@ -138,7 +142,7 @@
     <!-- VIEW 2: SELECT ACTIVITY -->
     <section id="activityView">
       <!-- Active Child Banner -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex items-center justify-between">
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center space-x-3.5">
           <div id="activeChildAvatar" class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-sm bg-indigo-100">
             🦁
@@ -148,9 +152,15 @@
           </div>
         </div>
 
-        <button onclick="showChildSelection()" class="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition flex items-center space-x-1 border border-indigo-200 active:scale-95">
-          <span>🔄 Switch Kid</span>
-        </button>
+        <div class="flex items-center space-x-2">
+          <button onclick="scrollToShoppingList()" class="px-3.5 py-2 text-sm font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-xl transition flex items-center space-x-1.5 border border-sky-200 active:scale-95">
+            <span>🛒 Shopping List</span>
+            <span id="headerShoppingBadge" class="bg-sky-600 text-white text-xs font-extrabold px-2 py-0.5 rounded-full">0</span>
+          </button>
+          <button onclick="showChildSelection()" class="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition flex items-center space-x-1 border border-indigo-200 active:scale-95">
+            <span>🔄 Switch Kid</span>
+          </button>
+        </div>
       </div>
 
       <!-- Activity Prompt -->
@@ -158,9 +168,29 @@
         <div>
           <h3 class="text-xl md:text-2xl font-bold text-slate-800">What did you finish?</h3>
         </div>
-        <button onclick="promptCustomActivity()" class="text-xs font-bold text-slate-600 bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded-lg active:scale-95">
+        <button onclick="toggleCustomActivityBox()" class="text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 border border-indigo-200 px-3.5 py-2 rounded-xl active:scale-95 transition">
           + Other Task
         </button>
+      </div>
+
+      <!-- Inline Custom Activity Box (replaces browser prompt() which fails on iPad web apps) -->
+      <div id="customActivityBox" class="hidden mb-5 bg-white p-4 rounded-2xl border-2 border-indigo-300 shadow-sm">
+        <label for="customActivityInput" class="block text-xs font-bold uppercase tracking-wider text-indigo-700 mb-2">
+          Log Another Activity or Chore
+        </label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="text" id="customActivityInput" placeholder="e.g., Watered plants, Helped with groceries..." 
+            onkeydown="if(event.key==='Enter'){submitCustomActivity();}"
+            class="flex-1 text-base p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-600 outline-none text-slate-800">
+          <div class="flex space-x-2 shrink-0">
+            <button onclick="submitCustomActivity()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl text-sm shadow">
+              ✓ Log It
+            </button>
+            <button onclick="closeCustomActivityBox()" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 font-bold rounded-xl text-sm">
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Activities Grid -->
@@ -191,6 +221,37 @@
 
         <div id="recentLogsList" class="space-y-2 text-sm text-slate-600 max-h-72 overflow-y-auto pr-1">
           <p class="text-xs text-slate-400 italic">No tasks logged yet today. Choose one above!</p>
+        </div>
+      </div>
+
+      <!-- SHARED SHOPPING LIST SECTION -->
+      <div id="shoppingListSection" class="mt-8 mb-6 bg-white rounded-2xl p-4 md:p-5 border-2 border-sky-200 shadow-sm">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 gap-2">
+          <div class="flex items-center space-x-2 min-w-0">
+            <span class="text-xl">🛒</span>
+            <h4 class="text-sm font-extrabold uppercase tracking-wider text-sky-900 truncate">
+              Shared Shopping List
+            </h4>
+            <span id="shoppingCountBadge" class="bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap">0 items</span>
+          </div>
+          <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">
+            Adding &amp; editing as <strong id="shoppingActiveChildLabel" class="text-slate-600">Mike</strong>
+          </span>
+        </div>
+
+        <!-- Add New Shopping Item Input Bar -->
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <input type="text" id="newShoppingItemInput" placeholder="Add item to shopping list (e.g., Milk, Apples, Markers)..."
+            onkeydown="if(event.key==='Enter'){addShoppingItem();}"
+            class="flex-1 text-sm md:text-base p-3 border-2 border-slate-200 rounded-xl focus:border-sky-500 outline-none text-slate-800">
+          <button onclick="addShoppingItem()" class="px-5 py-3 bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold rounded-xl text-sm shadow shrink-0">
+            + Add to List
+          </button>
+        </div>
+
+        <!-- Shopping List Items -->
+        <div id="shoppingListContainer" class="divide-y divide-slate-100 text-sm text-slate-700">
+          <p class="text-xs text-slate-400 italic py-2">Shopping list is empty. Add an item above!</p>
         </div>
       </div>
     </section>
@@ -358,6 +419,9 @@
       tasks: JSON.parse(localStorage.getItem("chore_tasks")) || DEFAULT_TASKS,
       activeChild: null,
       historyLogs: JSON.parse(localStorage.getItem("chore_history_logs")) || [],
+      shoppingList: JSON.parse(localStorage.getItem("chore_shopping_list")) || [],
+      editingShoppingId: null,
+      confirmRemovingShoppingId: null,
       pendingSyncQueue: JSON.parse(localStorage.getItem("chore_sync_queue")) || [],
       lastLoggedItem: null,
       undoTimeoutId: null,
@@ -535,7 +599,7 @@
     }
 
     function mergeSheetLogs(serverLogs) {
-      const pending = appState.pendingSyncQueue || [];
+      const pending = (appState.pendingSyncQueue || []).filter(p => !p.action);
       const localOnly = [];
 
       pending.forEach(p => {
@@ -567,6 +631,44 @@
       localStorage.setItem("chore_history_logs", JSON.stringify(appState.historyLogs));
     }
 
+    function mergeShoppingList(serverShoppingList) {
+      let list = Array.isArray(serverShoppingList) ? serverShoppingList.slice() : [];
+      const pendingShopActions = (appState.pendingSyncQueue || []).filter(
+        p => p.action && p.action.indexOf("shopping_") === 0
+      );
+
+      pendingShopActions.forEach(act => {
+        if (act.action === "shopping_add") {
+          const exists = list.some(item => item.id === act.id);
+          if (!exists) {
+            list.push({
+              id: act.id,
+              item: act.item,
+              status: "Active",
+              createdBy: act.child,
+              createdAt: act.timestampFormatted || "",
+              editedBy: "",
+              editedAt: "",
+              isPending: true
+            });
+          }
+        } else if (act.action === "shopping_edit") {
+          const target = list.find(item => item.id === act.id);
+          if (target) {
+            target.item = act.item;
+            target.editedBy = act.child;
+            target.editedAt = act.timestampFormatted || "";
+            target.isPending = true;
+          }
+        } else if (act.action === "shopping_remove") {
+          list = list.filter(item => item.id !== act.id);
+        }
+      });
+
+      appState.shoppingList = list;
+      localStorage.setItem("chore_shopping_list", JSON.stringify(appState.shoppingList));
+    }
+
     // --- AUDIO CHIME (Web Audio API Synthesizer - works offline without files) ---
     function playVictoryChime() {
       try {
@@ -593,6 +695,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       checkSheetUrlBanner();
       renderKidsGrid();
+      renderShoppingList();
       processSyncQueue();
 
       // Automatically sync latest kids & tasks from Google Sheet on app launch
@@ -647,9 +750,13 @@
           if (Array.isArray(data.logs)) {
             mergeSheetLogs(data.logs);
           }
+          if (Array.isArray(data.shoppingList)) {
+            mergeShoppingList(data.shoppingList);
+          }
 
           // Refresh UI
           renderKidsGrid();
+          renderShoppingList();
           if (appState.activeChild) {
             // Keep active child reference intact
             const refreshedActive = appState.kids.find(k => k.name === appState.activeChild.name);
@@ -659,7 +766,7 @@
           }
 
           updateSyncBadge("Cloud Synced", "bg-emerald-400");
-          if (notifyUser) alert("Successfully loaded the latest kids, tasks, and activity logs from Google Sheets!");
+          if (notifyUser) alert("Successfully loaded the latest kids, tasks, activity logs, and shopping list from Google Sheets!");
         } else {
           updateSyncBadge("Cloud Ready", "bg-emerald-400");
         }
@@ -704,6 +811,9 @@
     // --- VIEW SWITCHING ---
     function showChildSelection() {
       appState.activeChild = null;
+      appState.editingShoppingId = null;
+      appState.confirmRemovingShoppingId = null;
+      closeCustomActivityBox();
       document.getElementById("childSelectionView").classList.add("visible");
       document.getElementById("activityView").classList.remove("visible");
       document.getElementById("headerSubtitle").textContent = "Activity & Chore Log";
@@ -714,21 +824,36 @@
       const child = appState.kids.find(k => k.id === childId);
       if (!child) return;
       appState.activeChild = child;
+      appState.editingShoppingId = null;
+      appState.confirmRemovingShoppingId = null;
+      closeCustomActivityBox();
 
       document.getElementById("activeChildName").textContent = child.name;
       document.getElementById("activeChildAvatar").textContent = child.avatar;
       document.getElementById("recentChildName").textContent = child.name;
+      const shopChildLabel = document.getElementById("shoppingActiveChildLabel");
+      if (shopChildLabel) shopChildLabel.textContent = child.name;
       document.getElementById("headerSubtitle").textContent = `Logging for ${child.name}`;
 
       document.getElementById("childSelectionView").classList.remove("visible");
       document.getElementById("activityView").classList.add("visible");
       renderTasksGrid();
       renderRecentLogs();
+      renderShoppingList();
       window.scrollTo(0, 0);
 
-      // Automatically fetch latest logs from Google Sheet across all iPads
+      // Automatically fetch latest logs & shopping list from Google Sheet across all iPads
       if (appState.sheetUrl) {
         syncNowWithSheet(false);
+      }
+    }
+
+    function scrollToShoppingList() {
+      const section = document.getElementById("shoppingListSection");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+        const input = document.getElementById("newShoppingItemInput");
+        if (input) setTimeout(() => input.focus(), 350);
       }
     }
 
@@ -936,11 +1061,278 @@
       enqueueSync(payload);
     }
 
-    function promptCustomActivity() {
-      const customTask = prompt("Enter the name of the custom activity completed:");
-      if (customTask && customTask.trim().length > 0) {
-        logActivity(customTask.trim());
+    // --- INLINE CUSTOM ACTIVITY BOX (Replaces blocked window.prompt on iPad) ---
+    function toggleCustomActivityBox() {
+      const box = document.getElementById("customActivityBox");
+      const input = document.getElementById("customActivityInput");
+      if (!box) return;
+      if (box.classList.contains("hidden")) {
+        box.classList.remove("hidden");
+        if (input) {
+          input.value = "";
+          setTimeout(() => input.focus(), 50);
+        }
+      } else {
+        closeCustomActivityBox();
       }
+    }
+
+    function closeCustomActivityBox() {
+      const box = document.getElementById("customActivityBox");
+      const input = document.getElementById("customActivityInput");
+      if (box) box.classList.add("hidden");
+      if (input) input.value = "";
+    }
+
+    function submitCustomActivity() {
+      const input = document.getElementById("customActivityInput");
+      if (!input) return;
+      const customTask = input.value.trim();
+      if (customTask.length > 0) {
+        logActivity(customTask);
+        closeCustomActivityBox();
+      } else {
+        input.focus();
+      }
+    }
+
+    // --- SHARED SHOPPING LIST FUNCTIONS ---
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatShortNow() {
+      const now = new Date();
+      const dateStr = getLocalDateString(now);
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const ampm = h >= 12 ? "pm" : "am";
+      h = h % 12 || 12;
+      return `${dateStr} ${h}:${m}${ampm}`;
+    }
+
+    function renderShoppingList() {
+      const container = document.getElementById("shoppingListContainer");
+      const badge = document.getElementById("shoppingCountBadge");
+      const headerBadge = document.getElementById("headerShoppingBadge");
+      const activeItems = (appState.shoppingList || []).filter(
+        i => i && i.item && (!i.status || i.status.toLowerCase() !== "removed")
+      );
+
+      if (badge) {
+        badge.textContent = `${activeItems.length} ${activeItems.length === 1 ? "item" : "items"}`;
+      }
+      if (headerBadge) {
+        headerBadge.textContent = String(activeItems.length);
+      }
+      if (!container) return;
+
+      if (activeItems.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic py-2">Shopping list is empty. Add an item above!</p>`;
+        return;
+      }
+
+      container.innerHTML = activeItems.map(entry => {
+        const safeId = escapeHtml(entry.id);
+        const safeItem = escapeHtml(entry.item);
+        const safeCreator = escapeHtml(entry.createdBy || "Someone");
+        const safeEditor = escapeHtml(entry.editedBy || "");
+
+        // Inline Edit Mode for this row
+        if (appState.editingShoppingId === entry.id) {
+          return `
+            <div class="py-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-sky-50/70 px-3 rounded-xl my-1 border border-sky-200">
+              <input type="text" id="editShopInput-${safeId}" value="${safeItem}"
+                onkeydown="if(event.key==='Enter'){saveEditShoppingItem('${safeId}');}else if(event.key==='Escape'){cancelEditShoppingItem();}"
+                class="flex-1 text-sm md:text-base p-2.5 bg-white border-2 border-sky-400 rounded-xl outline-none text-slate-800 font-semibold">
+              <div class="flex items-center space-x-2 shrink-0">
+                <button onclick="saveEditShoppingItem('${safeId}')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow">
+                  ✓ Save
+                </button>
+                <button onclick="cancelEditShoppingItem()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 text-xs font-bold rounded-xl">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        // Inline Remove Confirmation Mode for this row
+        if (appState.confirmRemovingShoppingId === entry.id) {
+          return `
+            <div class="py-2.5 flex items-center justify-between gap-2 bg-rose-50 px-3 rounded-xl my-1 border border-rose-200">
+              <div class="text-xs font-bold text-rose-800 truncate">
+                Remove "${safeItem}" from shopping list?
+              </div>
+              <div class="flex items-center space-x-2 shrink-0">
+                <button onclick="executeRemoveShoppingItem('${safeId}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow">
+                  Yes, Remove
+                </button>
+                <button onclick="cancelRemoveShoppingItem()" class="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs font-bold rounded-lg">
+                  Keep
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        // Standard Display Row
+        let metaText = `Added by <strong class="text-slate-600">${safeCreator}</strong>`;
+        if (safeEditor) {
+          metaText += ` &bull; Last edited by <strong class="text-indigo-600">${safeEditor}</strong>`;
+        }
+
+        return `
+          <div class="py-2.5 flex items-center justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sky-600 font-bold text-sm shrink-0">•</span>
+                <span class="font-bold text-slate-800 text-sm md:text-base break-words">${safeItem}</span>
+                ${entry.isPending ? '<span class="text-[10px] text-amber-500 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 shrink-0">syncing</span>' : ''}
+              </div>
+              <div class="text-[11px] text-slate-400 pl-4 mt-0.5">
+                ${metaText}
+              </div>
+            </div>
+            <div class="flex items-center space-x-1.5 shrink-0">
+              <button onclick="startEditShoppingItem('${safeId}')" class="px-2.5 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg transition" title="Edit item">
+                ✏️ Edit
+              </button>
+              <button onclick="confirmRemoveShoppingItem('${safeId}')" class="px-2.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 active:scale-95 rounded-lg transition" title="Remove item">
+                🗑️ Remove
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function addShoppingItem() {
+      if (!appState.activeChild) return;
+      const input = document.getElementById("newShoppingItemInput");
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) {
+        input.focus();
+        return;
+      }
+
+      const nowFormatted = formatShortNow();
+      const newItem = {
+        id: "shop-" + Date.now(),
+        item: text,
+        status: "Active",
+        createdBy: appState.activeChild.name,
+        createdAt: nowFormatted,
+        editedBy: "",
+        editedAt: "",
+        isPending: true
+      };
+
+      appState.shoppingList.push(newItem);
+      localStorage.setItem("chore_shopping_list", JSON.stringify(appState.shoppingList));
+      input.value = "";
+      renderShoppingList();
+
+      enqueueSync({
+        action: "shopping_add",
+        id: newItem.id,
+        item: newItem.item,
+        child: appState.activeChild.name,
+        timestampFormatted: nowFormatted
+      });
+    }
+
+    function startEditShoppingItem(itemId) {
+      appState.confirmRemovingShoppingId = null;
+      appState.editingShoppingId = itemId;
+      renderShoppingList();
+      setTimeout(() => {
+        const el = document.getElementById("editShopInput-" + itemId);
+        if (el) {
+          el.focus();
+          el.select();
+        }
+      }, 50);
+    }
+
+    function cancelEditShoppingItem() {
+      appState.editingShoppingId = null;
+      renderShoppingList();
+    }
+
+    function saveEditShoppingItem(itemId) {
+      if (!appState.activeChild) return;
+      const el = document.getElementById("editShopInput-" + itemId);
+      if (!el) return;
+      const updatedText = el.value.trim();
+      if (!updatedText) {
+        el.focus();
+        return;
+      }
+
+      const target = appState.shoppingList.find(i => i.id === itemId);
+      const nowFormatted = formatShortNow();
+      if (target) {
+        // Only record edit if changed (or always update when saved)
+        target.item = updatedText;
+        target.editedBy = appState.activeChild.name;
+        target.editedAt = nowFormatted;
+        target.isPending = true;
+        localStorage.setItem("chore_shopping_list", JSON.stringify(appState.shoppingList));
+
+        enqueueSync({
+          action: "shopping_edit",
+          id: target.id,
+          item: target.item,
+          child: appState.activeChild.name,
+          createdBy: target.createdBy || appState.activeChild.name,
+          createdAt: target.createdAt || nowFormatted,
+          timestampFormatted: nowFormatted
+        });
+      }
+
+      appState.editingShoppingId = null;
+      renderShoppingList();
+    }
+
+    function confirmRemoveShoppingItem(itemId) {
+      appState.editingShoppingId = null;
+      appState.confirmRemovingShoppingId = itemId;
+      renderShoppingList();
+    }
+
+    function cancelRemoveShoppingItem() {
+      appState.confirmRemovingShoppingId = null;
+      renderShoppingList();
+    }
+
+    function executeRemoveShoppingItem(itemId) {
+      if (!appState.activeChild) return;
+      const target = appState.shoppingList.find(i => i.id === itemId);
+      const nowFormatted = formatShortNow();
+
+      appState.shoppingList = appState.shoppingList.filter(i => i.id !== itemId);
+      localStorage.setItem("chore_shopping_list", JSON.stringify(appState.shoppingList));
+      appState.confirmRemovingShoppingId = null;
+      renderShoppingList();
+
+      enqueueSync({
+        action: "shopping_remove",
+        id: itemId,
+        item: target ? target.item : "",
+        child: appState.activeChild.name,
+        createdBy: target ? target.createdBy : "",
+        createdAt: target ? target.createdAt : "",
+        editedBy: target ? target.editedBy : "",
+        editedAt: target ? target.editedAt : "",
+        timestampFormatted: nowFormatted
+      });
     }
 
     // --- TOAST & UNDO ---
@@ -1022,12 +1414,24 @@
         const syncedItem = appState.pendingSyncQueue.shift();
         localStorage.setItem("chore_sync_queue", JSON.stringify(appState.pendingSyncQueue));
 
-        // Mark item as confirmed in local history
+        // Mark item as confirmed in local history or shopping list
         if (syncedItem && syncedItem.id) {
           const match = appState.historyLogs.find(h => h.id === syncedItem.id);
-          if (match) delete match.isPending;
-          localStorage.setItem("chore_history_logs", JSON.stringify(appState.historyLogs));
-          renderRecentLogs();
+          if (match) {
+            delete match.isPending;
+            localStorage.setItem("chore_history_logs", JSON.stringify(appState.historyLogs));
+            renderRecentLogs();
+          }
+
+          const shopMatch = (appState.shoppingList || []).find(s => s.id === syncedItem.id);
+          if (shopMatch) {
+            const stillPending = appState.pendingSyncQueue.some(q => q.id === syncedItem.id);
+            if (!stillPending) {
+              delete shopMatch.isPending;
+              localStorage.setItem("chore_shopping_list", JSON.stringify(appState.shoppingList));
+              renderShoppingList();
+            }
+          }
         }
 
         updateSyncBadge("Saved to Sheet", "bg-emerald-400");
